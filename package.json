@@ -1,0 +1,25 @@
+{
+  "name": "calcom-passmark-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-driven end-to-end regression suite for Cal.com using Playwright, Passmark, and OpenRouter-oriented configuration.",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:core": "playwright test tests/core",
+    "test:edge": "playwright test tests/edge",
+    "test:stress": "playwright test tests/stress",
+    "test:regression": "playwright test tests/regression",
+    "report": "playwright show-report"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "passmark": "latest"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.0",
+    "@types/node": "^24.0.0",
+    "typescript": "^5.8.0"
+  }
+}
