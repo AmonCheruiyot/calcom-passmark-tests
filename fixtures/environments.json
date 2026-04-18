@@ -1,0 +1,13 @@
+{
+  "local": {
+    "name": "local",
+    "description": "Use a locally controlled or staging Cal.com event for reliable mutation testing.",
+    "requires": ["CALCOM_BOOKING_URL", "REDIS_URL"]
+  },
+  "staging": {
+    "name": "staging",
+    "description": "Preferred for hackathon runs because cancellation and rescheduling mutate real booking state.",
+    "requires": ["CALCOM_BOOKING_URL", "REDIS_URL", "ANTHROPIC_API_KEY", "GOOGLE_API_KEY"]
+  }
+}
+

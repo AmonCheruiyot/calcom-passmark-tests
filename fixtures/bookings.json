@@ -1,0 +1,11 @@
+{
+  "defaultNotes": "Automated reliability validation for Cal.com booking integrity.",
+  "rescheduleNotes": "Updated during AI-driven reschedule coverage.",
+  "stressNotes": "Parallel and chaos validation for booking race conditions.",
+  "timezones": {
+    "default": "America/New_York",
+    "edge": "Asia/Tokyo",
+    "secondary": "Europe/Berlin"
+  }
+}
+

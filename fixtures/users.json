@@ -1,0 +1,15 @@
+{
+  "primaryAttendee": {
+    "name": "Amon Regression",
+    "email": "amon.regression+primary@example.com"
+  },
+  "secondaryAttendee": {
+    "name": "Amon Backup",
+    "email": "amon.regression+secondary@example.com"
+  },
+  "invalidAttendee": {
+    "name": "",
+    "email": "invalid-email"
+  }
+}
+
