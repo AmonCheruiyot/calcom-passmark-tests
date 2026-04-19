@@ -41,7 +41,8 @@ export const appConfig = {
       Boolean(process.env.CALCOM_BOOKING_URL && process.env.REDIS_URL) &&
       process.env.CALCOM_BOOKING_URL !== placeholderBookingUrl,
     missingMessage:
-      "Set CALCOM_BOOKING_URL to a real Cal.com event page and REDIS_URL before running live mutation tests."
+      "Set CALCOM_BOOKING_URL to a real Cal.com event page and REDIS_URL before running live mutation tests.",
+    demoMode: process.env.DEMO_MODE === "true"
   },
   fixtures: {
     environments

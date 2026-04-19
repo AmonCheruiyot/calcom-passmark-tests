@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { appConfig } from "../../helpers/config";
-import { bookMeeting, detectPageState } from "../../helpers/flows";
+import { assertBookingStateConsistentAcrossSessions, bookMeeting, captureConfirmationUrl, detectPageState } from "../../helpers/flows";
 import { attendees, bookingData, uniqueAttendee } from "../../helpers/testData";
 
 test("handles near-concurrent booking attempts gracefully", async ({ browser }) => {
@@ -10,7 +10,7 @@ test("handles near-concurrent booking attempts gracefully", async ({ browser }) 
   const pages = await Promise.all(contexts.map((context) => context.newPage()));
 
   try {
-    await Promise.allSettled(
+    const results = await Promise.allSettled(
       pages.map((page, index) =>
         bookMeeting(page, uniqueAttendee(attendees.primary, `stress-concurrency-${index + 1}`), {
           notes: bookingData.stressNotes,
@@ -23,6 +23,12 @@ test("handles near-concurrent booking attempts gracefully", async ({ browser }) 
     const successful = states.filter((state) => state === "confirmation").length;
     expect(successful).toBeGreaterThanOrEqual(1);
     expect(successful).toBeLessThanOrEqual(pages.length);
+
+    const confirmedPage = pages.find((_, index) => states[index] === "confirmation");
+    if (confirmedPage) {
+      const confirmationUrl = await captureConfirmationUrl(confirmedPage);
+      await assertBookingStateConsistentAcrossSessions(browser, confirmationUrl);
+    }
   } finally {
     await Promise.all(contexts.map((context) => context.close()));
   }

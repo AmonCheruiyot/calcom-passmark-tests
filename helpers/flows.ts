@@ -1,4 +1,4 @@
-import { expect, Locator, Page } from "@playwright/test";
+import { expect, Locator, Page, Browser } from "@playwright/test";
 import { runSteps } from "passmark";
 import { appConfig } from "./config";
 import { selectors } from "./selectors";
@@ -46,7 +46,7 @@ export async function chooseFirstSlot(page: Page, userFlow = "Choose earliest av
     userFlow,
     [
       { description: `Open the Cal.com booking page at ${appConfig.calcom.bookingUrl}` },
-      { description: "Choose the earliest date with an available time slot" },
+      { description: "Wait for the booking calendar to render and locate the earliest date with at least one visible available time slot" },
       { description: "Choose the first available time slot on that date" }
     ],
     [
@@ -65,23 +65,23 @@ export async function bookMeeting(
 ): Promise<void> {
   const steps: FlowStep[] = [
     { description: `Open the Cal.com booking page at ${appConfig.calcom.bookingUrl}` },
-    { description: "Choose the earliest date with an available time slot" },
-    { description: "Choose the first available time slot on that date" }
+    { description: "Wait for the booking calendar to render, then choose the earliest date with at least one available time slot" },
+    { description: "Select the first available time slot on that date" }
   ];
 
   if (options?.timezone) {
     steps.push({
-      description: "Set the booking timezone before submitting attendee details",
+      description: "Set the booking timezone before filling attendee details",
       data: { timezone: options.timezone }
     });
   }
 
   steps.push({
-    description: "Fill the attendee name",
+    description: "Fill the attendee name field with the customer's full name",
     data: { value: attendee.name }
   });
   steps.push({
-    description: "Fill the attendee email address",
+    description: "Fill the attendee email address field with a valid email",
     data: { value: attendee.email }
   });
 
@@ -114,13 +114,13 @@ export async function cancelMeeting(page: Page): Promise<void> {
     page,
     "Cancel an existing Cal.com meeting",
     [
-      { description: "Use the booking management controls on this page" },
-      { description: "Cancel the meeting and confirm the cancellation if a confirmation step appears" }
+      { description: "Locate the booking management controls on this page" },
+      { description: "Choose the cancel option and confirm the cancellation if prompted" }
     ],
     [
       {
         assertion:
-          "The booking is cancelled and the page clearly shows a cancelled state rather than an active booking."
+          "The booking is cancelled and the page clearly shows a cancelled state instead of an active booking."
       }
     ]
   );
@@ -133,10 +133,9 @@ export async function rescheduleMeeting(page: Page): Promise<void> {
     page,
     "Reschedule an existing Cal.com meeting",
     [
-      { description: "Use the booking management controls on this page" },
-      { description: "Start the reschedule flow" },
-      { description: "Choose a different date or time than the current selection" },
-      { description: "Submit the rescheduled booking" }
+      { description: "Locate the booking management controls on this page" },
+      { description: "Choose the reschedule option and pick a different available date or time" },
+      { description: "Submit the rescheduled booking and wait for the updated confirmation" }
     ],
     [
       {
@@ -147,6 +146,37 @@ export async function rescheduleMeeting(page: Page): Promise<void> {
   );
 
   await assertPageState(page, "confirmation");
+}
+
+export async function assertBookingStateConsistentAcrossSessions(
+  browser: Browser,
+  targetUrl: string,
+  expectedState: BookingPageState = "confirmation"
+): Promise<void> {
+  const context = await browser.newContext();
+  const sessionPage = await context.newPage();
+
+  try {
+    await sessionPage.goto(targetUrl, { waitUntil: "domcontentloaded" });
+    await assertPageState(sessionPage, expectedState);
+  } finally {
+    await context.close();
+  }
+}
+
+export async function assertCancellationPersistsAcrossSessions(
+  browser: Browser,
+  cancellationUrl: string
+): Promise<void> {
+  await assertBookingStateConsistentAcrossSessions(browser, cancellationUrl, "cancellation");
+}
+
+export async function assertBookingPersistedAfterReload(
+  page: Page,
+  expectedState: BookingPageState = "confirmation"
+): Promise<void> {
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await assertPageState(page, expectedState);
 }
 
 export async function captureConfirmationUrl(page: Page): Promise<string> {

@@ -1,9 +1,9 @@
 import { test, expect } from "@playwright/test";
 import { appConfig } from "../../helpers/config";
-import { bookMeeting } from "../../helpers/flows";
+import { assertBookingStateConsistentAcrossSessions, bookMeeting, captureConfirmationUrl } from "../../helpers/flows";
 import { attendees, bookingData, uniqueAttendee } from "../../helpers/testData";
 
-test("preserves booking integrity when the attendee changes timezone", async ({ page }) => {
+test("preserves booking integrity when the attendee changes timezone", async ({ browser, page }) => {
   test.skip(!appConfig.execution.isReadyForLiveRun, appConfig.execution.missingMessage);
 
   const timezone = bookingData.timezones.edge;
@@ -15,5 +15,8 @@ test("preserves booking integrity when the attendee changes timezone", async ({ 
 
   const body = await page.locator("body").innerText();
   expect(body).toMatch(new RegExp(timezone.split("/")[1], "i"));
+
+  const confirmationUrl = await captureConfirmationUrl(page);
+  await assertBookingStateConsistentAcrossSessions(browser, confirmationUrl);
 });
 
