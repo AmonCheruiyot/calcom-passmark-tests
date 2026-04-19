@@ -1,9 +1,9 @@
 import { test, expect } from "@playwright/test";
 import { appConfig } from "../../helpers/config";
-import { assertManageActionsVisible, bookMeeting, detectPageState } from "../../helpers/flows";
+import { assertBookingStateConsistentAcrossSessions, assertManageActionsVisible, bookMeeting, captureConfirmationUrl, detectPageState } from "../../helpers/flows";
 import { attendees, bookingData, uniqueAttendee } from "../../helpers/testData";
 
-test("books a meeting through the primary Cal.com flow", async ({ page }) => {
+test("books a meeting through the primary Cal.com flow", async ({ browser, page }) => {
   test.skip(!appConfig.execution.isReadyForLiveRun, appConfig.execution.missingMessage);
 
   const attendee = uniqueAttendee(attendees.primary, "core-booking");
@@ -15,5 +15,8 @@ test("books a meeting through the primary Cal.com flow", async ({ page }) => {
 
   await assertManageActionsVisible(page);
   expect(await detectPageState(page)).toBe("confirmation");
+
+  const confirmationUrl = await captureConfirmationUrl(page);
+  await assertBookingStateConsistentAcrossSessions(browser, confirmationUrl);
 });
 

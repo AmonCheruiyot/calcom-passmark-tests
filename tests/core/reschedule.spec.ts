@@ -1,9 +1,9 @@
 import { test, expect } from "@playwright/test";
 import { appConfig } from "../../helpers/config";
-import { bookMeeting, rescheduleMeeting, detectPageState } from "../../helpers/flows";
+import { assertBookingStateConsistentAcrossSessions, bookMeeting, captureConfirmationUrl, rescheduleMeeting, detectPageState } from "../../helpers/flows";
 import { attendees, bookingData, uniqueAttendee } from "../../helpers/testData";
 
-test("reschedules a booked meeting to a new slot", async ({ page }) => {
+test("reschedules a booked meeting to a new slot", async ({ browser, page }) => {
   test.skip(!appConfig.execution.isReadyForLiveRun, appConfig.execution.missingMessage);
 
   await bookMeeting(page, uniqueAttendee(attendees.primary, "core-reschedule"), {
@@ -12,5 +12,8 @@ test("reschedules a booked meeting to a new slot", async ({ page }) => {
 
   await rescheduleMeeting(page);
   expect(await detectPageState(page)).toBe("confirmation");
+
+  const confirmationUrl = await captureConfirmationUrl(page);
+  await assertBookingStateConsistentAcrossSessions(browser, confirmationUrl);
 });
 

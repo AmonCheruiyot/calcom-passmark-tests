@@ -81,7 +81,10 @@ npm install
 
 - `CALCOM_BOOKING_URL` with a real Cal.com event URL you control
 - `REDIS_URL` for Passmark caching
-- AI provider credentials required by your Passmark setup
+- `OPENROUTER_API_KEY` with your Break Apps Hackathon OpenRouter key
+- `OPENROUTER_MODEL` if you want to override the default model
+
+The suite is already wired to route Passmark AI calls through OpenRouter via `playwright.config.ts`.
 
 3. Install Playwright browsers:
 

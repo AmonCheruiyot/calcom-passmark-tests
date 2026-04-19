@@ -11,6 +11,7 @@
     "test:edge": "playwright test tests/edge",
     "test:stress": "playwright test tests/stress",
     "test:regression": "playwright test tests/regression",
+    "demo": "cp .env.demo .env && npx playwright test tests/demo --project chromium --reporter=list",
     "report": "playwright show-report"
   },
   "dependencies": {
